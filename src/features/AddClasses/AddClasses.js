@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchClasses } from './addClassesSlice';
+import { fetchClasses, addClass } from './addClassesSlice';
 
 const AddClasses = () => {
 //  Get greetings from Redux store:
@@ -18,21 +18,34 @@ const AddClasses = () => {
     }
   }, [classesStatus, dispatch]);
 
-  const newClassList = (classItem) => (
-    <li key={classItem.id}>
-      <p>{classItem.name}</p>
-      <p>{classItem.description}</p>
-      <p>{classItem.photo}</p>
-      <p>{classItem.price}</p>
-      <button type="button">Edit</button>
-    </li>
+  const newClassTable = (classItem) => (
+    <tr key={classItem.id}>
+      <td>{classItem.name}</td>
+      <td>{classItem.description}</td>
+      <td>{classItem.price}</td>
+      <td><button type="button">Edit</button></td>
+    </tr>
   );
 
   let content;
 
   if (classesStatus === 'succeeded') {
-    // content = classItems.classes.map((classItem) => newClassList(classItem));
-    content = classItems.map((classItem) => newClassList(classItem));
+    // content = classItems.map((classItem) => newClassList(classItem));
+    content = (
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {classItems.map((classItem) => newClassTable(classItem))}
+        </tbody>
+      </table>
+    );
   } else if (classesStatus === 'failed') {
     content = (
       <>
@@ -47,7 +60,7 @@ const AddClasses = () => {
     description: '',
     photo: '',
     price: null,
-    mentor_name: null,
+    mentorName: null,
     duration: null,
   };
 
@@ -63,7 +76,7 @@ const AddClasses = () => {
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     const {
-      name, description, photo, price, mentor_name, duration,
+      name, description, photo, price, mentorName, duration,
     } = values;
     if (name && description) {
       const classArray = {
@@ -71,7 +84,7 @@ const AddClasses = () => {
         description,
         photo,
         price,
-        mentor_name,
+        mentorName,
         duration,
         id: Date.now(),
       };
@@ -84,45 +97,50 @@ const AddClasses = () => {
 
   return (
     <section>
-
+      <div>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="name"
+            value={values.name || ''}
+            id="classItemId"
+            placeholder="Name"
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="description"
+            value={values.description || ''}
+            id="classItemId"
+            required
+            placeholder="description"
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="photo"
+            value={values.photo || ''}
+            id="classItemId"
+            required
+            placeholder="photoUrl"
+            onChange={handleChange}
+          />
+          <input
+            type="number"
+            name="price"
+            value={values.price || null}
+            id="classItemId"
+            required
+            placeholder="price"
+            onChange={handleChange}
+          />
+          <input type="submit" value="Add Class" />
+        </form>
+      </div>
       <div>
         {content}
       </div>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="name"
-          value={values.name || ''}
-          id="classItemId"
-          placeholder="Name"
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="description"
-          value={values.description || ''}
-          id="classItemId"
-          placeholder="Name"
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="photo"
-          value={values.photo || ''}
-          id="classItemId"
-          placeholder="photoUrl"
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="price"
-          value={values.price || null}
-          id="clasItemId"
-          placeholder="price"
-          onChange={handleChange}
-        />
-      </form>
     </section>
   );
 };
